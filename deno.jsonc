@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "dev:tailwind": "deno run -A npm:tailwindcss -i ./client/input.css -o ./client/output.css --watch --minify",
+    "dev:server": "deno run -A --unstable --watch main.ts",
+    "dev": "deno task dev:server & deno task dev:tailwind"
+  }
+}
