@@ -19,7 +19,7 @@ class MockForm extends HTMLElement {
             </div>
           </form>
           <button
-                class="hover:shadow-form rounded-md bg-green-400 py-3 px-8 text-center text-base font-semibold text-white outline-none"
+                class="hover:shadow-form rounded-md bg-green-400 py-3 px-8 text-center text-base font-semibold text-white outline-none mt-3"
                 id="addMethodForm"
               >
                 Add Method Form
@@ -72,8 +72,8 @@ class MockForm extends HTMLElement {
 <div class="-mx-3 flex flex-wrap">
   <div class="w-full px-3 sm:w-1/2">
     <div class="mb-5">
-      <button type="button" id="remove_methodForm_${this.methodFormId}">
-      X CLOSE
+      <button type="button" id="remove_methodForm_${this.methodFormId}" class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded">
+      Remove
       </button>
       <label
         for="method"
