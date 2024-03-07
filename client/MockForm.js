@@ -6,9 +6,9 @@ class MockForm extends HTMLElement {
 
     this.innerHTML = /*html*/`<div class="flex items-center justify-center p-12">
         <div class="mx-auto w-full max-w-[550px]">
-          <form action="/createElement" method="POST" id="formApi">
+          <form action="/createElement" method="POST">
             <div id="methodForm"></div>
-  
+
             <div>
               <button
                 class="hover:shadow-form rounded-md bg-[#6A64F1] py-3 px-8 text-center text-base font-semibold text-white outline-none"
@@ -115,6 +115,7 @@ class MockForm extends HTMLElement {
     const methodString = this.getMethodForm();
     const methodForm = document.createElement('div');
     methodForm.id = `methodForm_${this.methodFormId}`;
+    methodForm.className = 'methodForm_fields'
     methodForm.innerHTML = methodString;
     form.appendChild(methodForm);
 
@@ -158,12 +159,12 @@ class MockForm extends HTMLElement {
   }
 
   getDataForm() {
-    const form = document.getElementById('formApi');
-    const formData = Array.from(new FormData(form));
+    const methodsForm = document.getElementsByClassName('methodForm_fields');
     const jsonToSend = { items: [] }
-    Array.from({ length: formData.length / 2 }).forEach((_, index) => {
-      const method = formData[index * 2][1];
-      const message = formData[index * 2 + 1][1];
+
+    Array.from(methodsForm).forEach(methodForm => {
+      const method = methodForm.querySelector('select').value;
+      const message = methodForm.querySelector('textarea').value;
       jsonToSend.items.push({ method, response: JSON.parse(message) })
     })
 
@@ -175,7 +176,7 @@ class MockForm extends HTMLElement {
 
     const jsonToSend = this.getDataForm();
     const url = document.getElementById('urlForm');
-    url.innerHTML = ''
+    url.innerHTML = '';
 
     const body = JSON.stringify(jsonToSend)
     const response = await fetch('/createElement', {
