@@ -47,11 +47,11 @@ export const infoRoute = () => {
   let message =
     "This is a mock server, you can use it to test your application. Create a mock by making a POST request to";
   message +=
-    ' /createElement with a Body similar to this {"items": [{"method": "PUT", "response": {"id": "12345", "name": " John"}}]}  ';
+    ' /createElement with a Body similar to this {"items": [{"method": "PUT", "path": "/path/to/test", "response": {"id": "12345", "name": " John"}}]}  ';
   message +=
     "To make the request, launch the indicated method to the uuid that will be told when creating the element.  ";
   message +=
-    "For example, for the above body, if it had returned the uuid d106450b-2bca-4d58-b3b1-9a776ad1be6d, you would have to do a PUT /mock?uuid=d106450b-2bca-4d58-b3b1-9a776ad1be6d ";
+    "For example, for the above body, if it had returned the uuid d106450b-2bca-4d58-b3b1-9a776ad1be6d, you would have to do a PUT /mock?uuid=d106450b-2bca-4d58-b3b1-9a776ad1be6d&path=/path/to/test ";
   return json(
     {
       message: message,
