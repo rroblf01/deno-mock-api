@@ -120,7 +120,8 @@ class MockForm extends HTMLElement {
     form.appendChild(methodForm);
 
     const removeButton = document.getElementById(`remove_methodForm_${this.methodFormId}`);
-    removeButton.addEventListener('click', () => this.removeMethodForm.bind(this)(this.methodFormId));
+    const idButton = this.methodFormId;
+    removeButton.addEventListener('click', () => this.removeMethodForm.bind(this)(idButton));
 
     const textArea = document.getElementById(`message_${this.methodFormId}`)
     textArea.addEventListener('input', this.checkTextArea.bind(this))
