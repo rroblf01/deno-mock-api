@@ -1,7 +1,11 @@
 const kv = await Deno.openKv();
 
-export const getElement = async (uuid: string, method: string) => {
-  const element = await kv.get([uuid, method]);
+export const getElement = async (
+  uuid: string,
+  method: string,
+  path: string,
+) => {
+  const element = await kv.get([uuid, method, path]);
 
   return element.value;
 };
@@ -16,14 +20,14 @@ export const getAllElements = async (uuid: string) => {
 };
 
 export const createAllElements = (
-  items: { method: string; response: string }[],
+  items: { path: string; method: string; response: string }[],
 ) => {
   const expireDays = Number(Deno.env.get("EXPIRATION_DAYS")) || 10;
   const uuid = crypto.randomUUID();
 
   const allPromises = items.map((item) => {
-    const { method, response } = item;
-    return kv.set([uuid, method], response, {
+    const { method, response, path } = item;
+    return kv.set([uuid, method, path], response, {
       expireIn: expireDays * 24 * 60 * 60 * 1000,
     });
   });

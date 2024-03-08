@@ -17,10 +17,20 @@ export const checkBody = (body: any) => {
   }
 
   try {
-    const items: { method: string; response: string }[] = body.items;
+    const items: { method: string; response: string; path: string }[] =
+      body.items;
 
     const errors = items.map((item) => {
-      const { method, response } = item;
+      const { method, response, path } = item;
+      if (!path.startsWith("/")) {
+        return json(
+          {
+            message: "Path must start with /",
+          },
+          { status: 400 },
+        );
+      }
+
       if (!correctsMethods.includes(method)) {
         return json(
           {

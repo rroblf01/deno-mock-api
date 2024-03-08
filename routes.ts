@@ -1,4 +1,4 @@
-import { json, validateRequest } from "./deps.ts";
+import { ConnInfo, json, PathParams, validateRequest } from "./deps.ts";
 import { checkBody, getParam } from "./utils.ts";
 import {
   createAllElementsController,
@@ -61,21 +61,22 @@ export const infoRoute = () => {
 
 export const mockRoute = (request: Request) => {
   const uuid = getParam(request.url, "uuid");
-  if (!uuid) {
+  const path = getParam(request.url, "path");
+  if (!uuid || !path) {
     return json(
       {
-        message: "Param uuid is required",
+        message: "Param uuid and path are required",
       },
       { status: 404 },
     );
   }
-  return getElementController(uuid, request.method);
+  return getElementController(uuid, request.method, path);
 };
 
 export const getElementBySlugRoute = async (
   _request: Request,
-  _connInfo,
-  params,
+  _connInfo: ConnInfo,
+  params: PathParams,
 ) => {
   let fileSize;
   const filePath = "./client/" + params.slug;

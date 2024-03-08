@@ -5,8 +5,12 @@ import {
 } from "./ddbb/denokv.ts";
 import { json } from "./deps.ts";
 
-export const getElementController = async (uuid: string, method: string) => {
-  const element = await getElement(uuid, method);
+export const getElementController = async (
+  uuid: string,
+  method: string,
+  path: string,
+) => {
+  const element = await getElement(uuid, method, path);
 
   if (element) {
     return json(element);
@@ -36,7 +40,7 @@ export const getAllElementsController = async (uuid: string) => {
 };
 
 export const createAllElementsController = (
-  items: { method: string; response: string }[],
+  items: { method: string; response: string; path: string }[],
 ) => {
   const uuid = createAllElements(items);
   return json({

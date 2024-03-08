@@ -3,6 +3,13 @@ class MockForm extends HTMLElement {
     super();
 
     this.methodFormId = 0;
+    this.methodsUsedPath = {
+      GET: {},
+      POST: {},
+      PUT: {},
+      DELETE: {},
+      PATCH: {}
+    }
 
     this.innerHTML = /*html*/`<div class="flex items-center justify-center p-12">
         <div class="mx-auto w-full max-w-[550px]">
@@ -52,14 +59,6 @@ class MockForm extends HTMLElement {
     return allChoices.find(choice => !allSelectsValues.includes(choice));
   }
 
-  getFreeChoices() {
-    const choises = this.getAllMethodChoices();
-    const allSelects = Array.from(document.getElementsByTagName('select'));
-    const allSelectsValues = allSelects.map(select => select.value);
-    const filteredChoises = choises.filter(choise => !allSelectsValues.includes(choise));
-    return filteredChoises;
-  }
-
   getMethodForm() {
     this.methodFormId++;
     const firstChoice = this.getFirstFreeChoice();
@@ -93,6 +92,10 @@ class MockForm extends HTMLElement {
   </div>
 </div>
 <div class="mb-5">
+<label for="guest" class="mb-3 block text-base font-medium text-[#07074D]">Path</label>
+<input type="text" name="path" id="path_${this.methodFormId}" value="/" class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md">
+</div>
+<div class="mb-5">
   <label
     for="guest"
     class="mb-3 block text-base font-medium text-[#07074D]"
@@ -113,23 +116,45 @@ class MockForm extends HTMLElement {
   insertMethodForm() {
     const form = document.getElementById('methodForm');
     const methodString = this.getMethodForm();
+    const methodFormId = this.methodFormId;
+
     const methodForm = document.createElement('div');
-    methodForm.id = `methodForm_${this.methodFormId}`;
+    methodForm.id = `methodForm_${methodFormId}`;
     methodForm.className = 'methodForm_fields'
     methodForm.innerHTML = methodString;
     form.appendChild(methodForm);
 
-    const removeButton = document.getElementById(`remove_methodForm_${this.methodFormId}`);
-    const idButton = this.methodFormId;
-    removeButton.addEventListener('click', () => this.removeMethodForm.bind(this)(idButton));
+    const removeButton = document.getElementById(`remove_methodForm_${methodFormId}`);
+    removeButton.addEventListener('click', () => this.removeMethodForm.bind(this)(methodFormId));
 
-    const textArea = document.getElementById(`message_${this.methodFormId}`)
+    const textArea = document.getElementById(`message_${methodFormId}`)
     textArea.addEventListener('input', this.checkTextArea.bind(this))
 
-    const select = document.getElementById(`method_${this.methodFormId}`)
+    const path = document.getElementById(`path_${methodFormId}`)
+    path.addEventListener('input', this.inputController.bind(this))
+
+    const select = document.getElementById(`method_${methodFormId}`)
+    this.methodsUsedPath[select.value][methodFormId] = '/'
     select.addEventListener('change', this.setAllSelectsOptions.bind(this))
     this.setAllSelectsOptions()
   }
+
+  inputController(event) {
+    const id = event.target.id.split('_')[1]
+    const method = document.getElementById(`method_${id}`).value
+    const path = document.getElementById(`path_${id}`).value
+    this.fillPath(id, method, path)
+  }
+
+  fillPath(id, method, path) {
+    this.getAllMethodChoices().forEach(choice => {
+      this.methodsUsedPath[choice][id] = method === choice ? path : undefined
+    })
+
+    const childrenArray = Array.from(document.getElementById(`method_${id}`).children)
+    this.setUsedOptions(childrenArray, id)
+  }
+
 
   removeMethodForm(id) {
     const form = document.getElementById('methodForm');
@@ -139,23 +164,23 @@ class MockForm extends HTMLElement {
   }
 
   setAllSelectsOptions() {
-    const freeOptions = this.getFreeChoices();
     const allSelects = Array.from(document.getElementsByTagName('select'));
-    allSelects.forEach(select => {
-      const options = Array.from(select.children)
-      options.forEach(option => {
-        if (option.value === select.value) {
-          return
-        }
 
-        if (freeOptions.includes(option.value)) {
-          option.disabled = false
-          option.textContent = option.value
-        } else {
-          option.disabled = true
-          option.textContent = `${option.value} (used)`
-        }
-      })
+    allSelects.forEach(select => {
+      const selectId = select.id.split('_')[1]
+      const selectMethod = select.value
+      const selectPath = document.getElementById(`path_${selectId}`).value
+      this.fillPath(selectId, selectMethod, selectPath)
+    })
+  }
+
+  setUsedOptions(childrensArray, selectId) {
+    childrensArray.forEach(option => {
+      const optionPath = document.getElementById(`path_${selectId}`).value
+      const someWithSamePath = Object.values(this.methodsUsedPath[option.value]).some(path => path === optionPath)
+
+      option.disabled = someWithSamePath ? true : false
+      option.textContent = someWithSamePath ? `${option.value} (used)` : option.value
     })
   }
 
@@ -166,7 +191,8 @@ class MockForm extends HTMLElement {
     Array.from(methodsForm).forEach(methodForm => {
       const method = methodForm.querySelector('select').value;
       const message = methodForm.querySelector('textarea').value;
-      jsonToSend.items.push({ method, response: JSON.parse(message) })
+      const path = methodForm.querySelector('input').value;
+      jsonToSend.items.push({ path, method, response: JSON.parse(message) })
     })
 
     return jsonToSend
@@ -189,7 +215,7 @@ class MockForm extends HTMLElement {
     });
     const data = await response.json();
     if (data.uuid) {
-      url.innerHTML = `Your URL is: /mock?uuid=${data.uuid}`;
+      url.innerHTML = `Your URL is: /mock?uuid=${data.uuid}&path=(your_path)`;
     } else {
       url.innerHTML = `Something went wrong ${data.error}`;
     }
